@@ -9,9 +9,10 @@ import { Repository } from 'typeorm';
 import { UserInterface } from '../interfaces/user.interface';
 import { Role } from '../models/role.entity';
 import { User } from '../models/user.entity';
-import { AuthenticationService } from './authentication.service';
-import { MailService } from './mail.service';
+import { AuthenticationService } from './helper/authentication.service';
+import { MailService } from './helper/mail.service';
 import { Request } from 'express';
+import { GenerateHashPasswordService } from './helper/generate-hash-password.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     private readonly authRoleRepository: Repository<Role>,
     private authenticationService: AuthenticationService,
     private mailService: MailService,
+    private generateHashPasswordService: GenerateHashPasswordService,
   ) {}
 
   //registration function
@@ -35,9 +37,10 @@ export class AuthService {
     const role = await this.authRoleRepository.findOne({
       where: { roleName: user.roleId },
     });
-    console.log(role);
-    console.log(role.id);
     user.roleId = role.id;
+    const hashPassword =
+      await this.generateHashPasswordService.generatePassword(user.password);
+    user.password = hashPassword;
 
     return this.authUserRepository.save(user);
   }
@@ -91,5 +94,22 @@ export class AuthService {
       password: req.body.password,
     });
     return data;
+  }
+
+  async refreshToken(@Req() req: Request) {
+    const refreshToken = req.body.token;
+    if (!refreshToken) throw Error();
+    //verify refresh token
+    const userId = await this.authenticationService.verifyRefToken(
+      refreshToken,
+    );
+    //generate new access token
+    const accToken = await this.authenticationService.getJwtAccessToken(userId);
+    //generate new refresh token
+    const refToken = await this.authenticationService.getJwtRefreshToken(
+      userId,
+    );
+    // res.json({ accToken, refToken });
+    return { accToken, refToken };
   }
 }

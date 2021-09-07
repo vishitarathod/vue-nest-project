@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
+//entity for post
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn('uuid')

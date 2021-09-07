@@ -42,4 +42,11 @@ export class AuthController {
   resetPassword(@Req() req: Request) {
     return this.authService.resetPassword(req);
   }
+
+  //refresh token api
+  @UseGuards(JwtAuthGuard)
+  @Post('/refresh-token')
+  refreshToken(@Req() req: Request) {
+    return this.authService.refreshToken(req);
+  }
 }

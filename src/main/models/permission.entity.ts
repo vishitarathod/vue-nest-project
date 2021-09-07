@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Role } from './role.entity';
 import { Resource } from './resource.entity';
 
+//entity for permission
 @Entity()
 export class Permission {
   @PrimaryGeneratedColumn('uuid')

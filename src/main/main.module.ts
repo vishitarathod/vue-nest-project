@@ -11,11 +11,15 @@ import { Role } from './models/role.entity';
 import { Post } from './models/post.entity';
 import { Resource } from './models/resource.entity';
 import { Permission } from './models/permission.entity';
-import { AuthenticationService } from './services/authentication.service';
+import { AuthenticationService } from './services/helper/authentication.service';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
-import { MailService } from './services/mail.service';
+import { MailService } from './services/helper/mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { GenerateHashPasswordService } from './services/helper/generate-hash-password.service';
+import { join } from 'path';
+import { CommonService } from './services/helper/common.service';
 
 @Module({
   imports: [
@@ -26,12 +30,19 @@ import { MailerModule } from '@nestjs-modules/mailer';
         service: 'gmail',
         secure: false,
         auth: {
-          user: process.env.username,
-          pass: process.env.pass,
+          user: 'rathodvishita2308@gmail.com',
+          pass: '',
         },
       },
       defaults: {
         from: '"No Reply" <noreply@example.com>',
+      },
+      template: {
+        dir: join(__dirname, 'services/helper/templates'),
+        adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
+        options: {
+          strict: true,
+        },
       },
     }),
   ],
@@ -43,6 +54,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
     AuthenticationService,
     JwtStrategy,
     MailService,
+    CommonService,
+    GenerateHashPasswordService,
   ],
 })
 export class MainModule {}

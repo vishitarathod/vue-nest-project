@@ -1,9 +1,17 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MainModule } from './main/main.module';
+import { ValidateRegisterMiddleware } from './main/middleware/validation/validateRegisterUser';
+import { ValidateLoginMiddleware } from './main/middleware/validation/validateLoginUser';
+import { ResourceName } from './main/middleware/setResourceName';
 import * as Joi from 'joi';
 
 @Module({
@@ -32,4 +40,16 @@ import * as Joi from 'joi';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ValidateRegisterMiddleware)
+      .forRoutes({ path: 'auth/register', method: RequestMethod.POST });
+    consumer
+      .apply(ValidateLoginMiddleware)
+      .forRoutes({ path: 'auth/login', method: RequestMethod.POST });
+    consumer
+      .apply(ResourceName)
+      .forRoutes({ path: 'user/get-permission', method: RequestMethod.GET });
+  }
+}

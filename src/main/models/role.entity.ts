@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Permission } from './permission.entity';
 import { User } from './user.entity';
 
+//entity for role
 @Entity()
 export class Role {
   @PrimaryGeneratedColumn('uuid')

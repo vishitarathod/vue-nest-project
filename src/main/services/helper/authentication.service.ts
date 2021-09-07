@@ -9,6 +9,7 @@ export class AuthenticationService {
     private readonly configService: ConfigService,
   ) {}
 
+  //get Access token using jwt
   public getJwtAccessToken(userId: string) {
     const payload = { userId };
     const token = this.jwtService.sign(payload, {
@@ -19,7 +20,7 @@ export class AuthenticationService {
     });
     return token;
   }
-
+  //get refresh token using jwt
   public getJwtRefreshToken(userId: string) {
     const payload = { userId };
     const token = this.jwtService.sign(payload, {
@@ -30,10 +31,17 @@ export class AuthenticationService {
     });
     return token;
   }
-
-  async verifyToken(token: string): Promise<boolean> {
+  //verify Access token using jwt
+  async verifyToken(token: string): Promise<string> {
     const user = await this.jwtService.verify(token, {
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+    });
+
+    return user.userId;
+  }
+  async verifyRefToken(token: string): Promise<string> {
+    const user = await this.jwtService.verify(token, {
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
     });
 
     return user.userId;

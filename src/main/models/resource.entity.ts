@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Permission } from './permission.entity';
 
+//entity for resource
 @Entity()
 export class Resource {
   @PrimaryGeneratedColumn('uuid')
