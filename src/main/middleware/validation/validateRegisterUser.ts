@@ -1,6 +1,7 @@
 import * as Joi from 'joi';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+import responseCode from '../../services/helper/response';
 
 @Injectable()
 export class ValidateRegisterMiddleware implements NestMiddleware {
@@ -27,7 +28,8 @@ export class ValidateRegisterMiddleware implements NestMiddleware {
       await schema.validateAsync(req.body);
       next();
     } catch (e) {
-      res.status(400).send({ message: 'registration error', error: e });
+      // res.status(400).send({ message: 'registration error', error: e });
+      responseCode.res400(res, e, 'registration error');
     }
   }
 

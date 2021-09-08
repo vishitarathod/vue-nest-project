@@ -4,6 +4,11 @@ import { Repository } from 'typeorm';
 import { Post } from '../models/post.entity';
 import { Request } from 'express';
 import { CommonService } from './helper/common.service';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 @Injectable()
 export class PostService {
   constructor(
@@ -40,5 +45,25 @@ export class PostService {
       title: req.body.title,
       discription: req.body.discription,
     });
+  }
+
+  //get user post which have role user with pagination
+  async getUserPost(
+    options: IPaginationOptions,
+    @Req() req: Request,
+  ): Promise<Pagination<Post>> {
+    const queryBuilder = this.postRepository.createQueryBuilder();
+    const data = await queryBuilder.where({
+      userId: req.body.userId,
+    });
+    console.log(req.body.userId);
+    return paginate<Post>(data, options);
+  }
+
+  //get all posts with pagination
+  async getPost(options: IPaginationOptions): Promise<Pagination<Post>> {
+    const queryBuilder = this.postRepository.createQueryBuilder();
+    console.log(queryBuilder);
+    return paginate<Post>(queryBuilder, options);
   }
 }

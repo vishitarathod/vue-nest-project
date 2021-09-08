@@ -13,6 +13,7 @@ import { ValidateRegisterMiddleware } from './main/middleware/validation/validat
 import { ValidateLoginMiddleware } from './main/middleware/validation/validateLoginUser';
 import { ResourceName } from './main/middleware/setResourceName';
 import * as Joi from 'joi';
+import { RoleMiddleware } from './main/middleware/roleMiddleware';
 
 @Module({
   imports: [
@@ -50,6 +51,9 @@ export class AppModule implements NestModule {
       .forRoutes({ path: 'auth/login', method: RequestMethod.POST });
     consumer
       .apply(ResourceName)
-      .forRoutes({ path: 'user/get-permission', method: RequestMethod.GET });
+      .forRoutes({ path: 'user/*', method: RequestMethod.ALL });
+  //   consumer
+  //     .apply(RoleMiddleware)
+  //     .forRoutes({ path: 'user/*', method: RequestMethod.ALL });
   }
 }

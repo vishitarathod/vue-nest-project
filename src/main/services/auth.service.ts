@@ -96,6 +96,7 @@ export class AuthService {
     return data;
   }
 
+  //genete new access and refresh token
   async refreshToken(@Req() req: Request) {
     const refreshToken = req.body.token;
     if (!refreshToken) throw Error();

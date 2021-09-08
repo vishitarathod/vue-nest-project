@@ -1,6 +1,7 @@
 import * as Joi from 'joi';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+import responseCode from '../../services/helper/response';
 
 @Injectable()
 export class ValidateLoginMiddleware implements NestMiddleware {
@@ -30,9 +31,10 @@ export class ValidateLoginMiddleware implements NestMiddleware {
       await schema.validateAsync(req.body);
       next();
     } catch (e) {
-      res
-        .status(400)
-        .send({ message: 'login error', error: e.details[0].message });
+      // res
+      //   .status(400)
+      //   .send({ message: 'login error', error: e.details[0].message });
+      responseCode.res400(res, e, 'login error');
     }
   };
   use(req: Request, res: Response, next: NextFunction) {

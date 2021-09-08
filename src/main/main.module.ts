@@ -20,6 +20,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { GenerateHashPasswordService } from './services/helper/generate-hash-password.service';
 import { join } from 'path';
 import { CommonService } from './services/helper/common.service';
+// import { RoleMiddleware } from './middleware/roleMiddleware';
 
 @Module({
   imports: [

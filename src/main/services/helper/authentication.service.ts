@@ -39,6 +39,7 @@ export class AuthenticationService {
 
     return user.userId;
   }
+  //verify refresh token using jwt
   async verifyRefToken(token: string): Promise<string> {
     const user = await this.jwtService.verify(token, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),

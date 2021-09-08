@@ -8,6 +8,12 @@ import { AuthService } from './auth.service';
 import { CommonService } from './helper/common.service';
 import { Resource } from '../models/resource.entity';
 import { Permission } from '../models/permission.entity';
+// import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 // import { paginate } from 'nestjs-typeorm-paginate';
 
 @Injectable()
@@ -27,6 +33,7 @@ export class UserService {
   async addUser(@Req() req: Request) {
     await this.authService.registerUser(req.body);
   }
+
   //update exiting user
   async updateUser(@Param('id') id: string, @Req() req: Request) {
     await this.userRepository.update(id, {
@@ -45,6 +52,7 @@ export class UserService {
     return await this.userRepository.findOne(id);
   }
 
+  //get permoissions
   async getPermission(@Req() req: Request) {
     const _id = this.commonService.getId();
     console.log(_id);
@@ -58,24 +66,13 @@ export class UserService {
     return permission;
   }
 
-  //get users which have user role
-  // getUsers = async (req, res) => {
-  //   const items = await this.userRepository.find({
-  //     roleId: '611fdd096066bf93f57ed7f8',
-  //   });
-
-  //   // get page from query params or default to first page
-  //   const page = parseInt(req.query.page) || 1;
-
-  //   // get pager object for specified page
-  //   const pageSize = 5;
-  // const pager = paginate(items.length, page, pageSize);
-
-  // // get page of items from items array
-  // const pageOfItems = items.slice(pager.startIndex, pager.endIndex + 1);
-  //   console.log(pageOfItems);
-  //   // return pager object and current page of items
-  //   return res.json({ pager, pageOfItems });
-  // };
-  // };
+  //get all users with pagination
+  async getUsers(options: IPaginationOptions): Promise<Pagination<User>> {
+    const queryBuilder = this.userRepository.createQueryBuilder();
+    const data = await queryBuilder.where({
+      roleId: '6d3475c5-d88c-4aae-af25-664b0420b071',
+    });
+    console.log(data);
+    return paginate<User>(data, options);
+  }
 }
