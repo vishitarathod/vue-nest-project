@@ -2,7 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
 @Injectable()
-export class ResourceName implements NestMiddleware {
+export class ResourceNameUser implements NestMiddleware {
   //set resource name
   public setResourceNameUser = async (
     req: Request,
@@ -11,15 +11,6 @@ export class ResourceName implements NestMiddleware {
   ) => {
     res.locals.resourceName = 'Users';
     // console.log(res.locals.resourceName);
-    next();
-  };
-  public setResourceNamePost = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    res.locals.resourceName = 'Posts';
-    console.log(res.locals.resourceName);
     next();
   };
   use(req: Request, res: Response, next: NextFunction) {

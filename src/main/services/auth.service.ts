@@ -3,16 +3,19 @@ import {
   Injectable,
   NotFoundException,
   Req,
+  Res,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserInterface } from '../interfaces/user.interface';
+// import { UserInterface } from '../interfaces/user.interface';
 import { Role } from '../models/role.entity';
 import { User } from '../models/user.entity';
 import { AuthenticationService } from './helper/authentication.service';
 import { MailService } from './helper/mail.service';
+import { Response } from 'express';
 import { Request } from 'express';
 import { GenerateHashPasswordService } from './helper/generate-hash-password.service';
+// import { Observable } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -26,43 +29,71 @@ export class AuthService {
     private generateHashPasswordService: GenerateHashPasswordService,
   ) {}
 
+  // user = {
+  //   name: string,
+  //   email: string,
+  // };
   //registration function
-  async registerUser(user: UserInterface): Promise<User> {
-    const count = await this.authUserRepository.count({
-      where: { email: user.email },
-    });
-    if (count > 0) {
-      throw new ConflictException(`${user.email} is alreday exits`);
-    }
-    const role = await this.authRoleRepository.findOne({
-      where: { roleName: user.roleId },
-    });
-    user.roleId = role.id;
-    const hashPassword =
-      await this.generateHashPasswordService.generatePassword(user.password);
-    user.password = hashPassword;
+  async registerUser(@Req() req: Request, @Res() res: Response) {
+    try {
+      const count = await this.authUserRepository.count({
+        where: { email: req.body.email },
+      });
 
-    return this.authUserRepository.save(user);
+      if (count > 0) {
+        throw new ConflictException(`${req.body.email} is alreday exits`);
+      }
+
+      const role = await this.authRoleRepository.findOne({
+        where: { roleName: req.body.roleId },
+      });
+
+      req.body.roleId = role.id;
+
+      const hashPassword =
+        await this.generateHashPasswordService.generatePassword(
+          req.body.password,
+        );
+
+      req.body.password = hashPassword;
+      // console.log('user:', req.body);
+      const saveUser = await this.authUserRepository.save(req.body);
+      // console.log('saveduser:', saveUser);
+      // res.send(saveUser);
+      return saveUser;
+      // res.send(saveUser);
+    } catch (e) {
+      console.log('=========', e);
+      res.status(400).send({ message: 'registration error', error: e });
+    }
   }
 
   //login function
-  async loginUser(user: UserInterface) {
-    const count = await this.authUserRepository.count({
-      where: { email: user.email },
-    });
-    if (count <= 0) {
-      throw new NotFoundException(`${user.email} is not register`);
+  async loginUser(@Req() req: Request, @Res() res: Response) {
+    try {
+      const count = await this.authUserRepository.count({
+        where: { email: req.body.email },
+      });
+      if (count <= 0) {
+        throw new NotFoundException(`${req.body.email} is not register`);
+      }
+      const userOne = await this.authUserRepository.findOne({
+        where: { email: req.body.email },
+      });
+      const accessToken = await this.authenticationService.getJwtAccessToken(
+        userOne.id,
+      );
+      const refreshToken = await this.authenticationService.getJwtRefreshToken(
+        userOne.id,
+      );
+      const roleId = userOne.roleId;
+      const userId = userOne.id;
+      // console.log(accessToken, refreshToken, roleId, userId);
+      return { accessToken, refreshToken, roleId, userId };
+    } catch (e) {
+      console.log('=========', e);
+      res.status(400).send({ message: 'login error', error: e });
     }
-    const userOne = await this.authUserRepository.findOne({
-      where: { email: user.email },
-    });
-    const accessToken = await this.authenticationService.getJwtAccessToken(
-      userOne.id,
-    );
-    const refreshToken = await this.authenticationService.getJwtRefreshToken(
-      userOne.id,
-    );
-    return { accessToken, refreshToken };
   }
 
   //forgot password function
@@ -112,5 +143,9 @@ export class AuthService {
     );
     // res.json({ accToken, refToken });
     return { accToken, refToken };
+  }
+
+  logout(@Res() res: Response) {
+    return { msg: 'success' };
   }
 }

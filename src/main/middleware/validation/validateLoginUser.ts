@@ -31,10 +31,10 @@ export class ValidateLoginMiddleware implements NestMiddleware {
       await schema.validateAsync(req.body);
       next();
     } catch (e) {
-      // res
-      //   .status(400)
-      //   .send({ message: 'login error', error: e.details[0].message });
-      responseCode.res400(res, e, 'login error');
+      res
+        .status(400)
+        .send({ message: 'login error', error: e.details[0].message });
+      // responseCode.res400(res, e, 'login error');
     }
   };
   use(req: Request, res: Response, next: NextFunction) {

@@ -11,9 +11,16 @@ import { AppService } from './app.service';
 import { MainModule } from './main/main.module';
 import { ValidateRegisterMiddleware } from './main/middleware/validation/validateRegisterUser';
 import { ValidateLoginMiddleware } from './main/middleware/validation/validateLoginUser';
-import { ResourceName } from './main/middleware/setResourceName';
+import { ResourceNameUser } from './main/middleware/setResourceNameUser';
+import { ResourceNamePost } from './main/middleware/setResourceNamePost';
 import * as Joi from 'joi';
+// import { CommonService } from './main/services/helper/common.service';
 import { RoleMiddleware } from './main/middleware/roleMiddleware';
+import { AuthMiddleware } from './main/middleware/AuthMIddleware';
+// import { JwtService } from '@nestjs/jwt';
+// import { AuthenticationService } from './main/services/helper/authentication.service';
+// import { JwtService } from '@nestjs/jwt';
+// import { JwtStrategy } from './main/strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -50,10 +57,17 @@ export class AppModule implements NestModule {
       .apply(ValidateLoginMiddleware)
       .forRoutes({ path: 'auth/login', method: RequestMethod.POST });
     consumer
-      .apply(ResourceName)
+      .apply(AuthMiddleware, ResourceNameUser)
       .forRoutes({ path: 'user/*', method: RequestMethod.ALL });
-  //   consumer
-  //     .apply(RoleMiddleware)
-  //     .forRoutes({ path: 'user/*', method: RequestMethod.ALL });
+    consumer
+      .apply(AuthMiddleware, ResourceNamePost)
+      .forRoutes({ path: 'post/*', method: RequestMethod.ALL });
+    consumer
+      .apply(RoleMiddleware)
+      .exclude({ path: 'user/get-permission', method: RequestMethod.GET })
+      .forRoutes(
+        { path: 'user/*', method: RequestMethod.ALL },
+        { path: 'post/*', method: RequestMethod.ALL },
+      );
   }
 }

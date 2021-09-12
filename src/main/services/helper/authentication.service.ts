@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Request, Response, NextFunction } from 'express';
 
 @Injectable()
 export class AuthenticationService {
@@ -44,6 +45,32 @@ export class AuthenticationService {
     const user = await this.jwtService.verify(token, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
     });
+
+    return user.userId;
+  }
+
+  async verifyAccessToken(
+    @Req() req: Request,
+    @Res() res: Response,
+    next: NextFunction,
+  ) {
+    if (!req.headers['authorization']) return next(Error());
+    const authHeader = req.headers['authorization'];
+    const bearerToken = authHeader.split(' ');
+    const token = bearerToken[1];
+    //verify token
+    const user = await this.jwtService.verify(token, {
+      secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+    });
+    // console.log(user);
+    // if (!user) {
+    //   return res.status(401).json({ error: 'Unauthorized' });
+    // }
+    // req.payload = payload;
+    const userId = user.userId;
+    res.locals.userID = userId;
+    console.log('++++++++++', res.locals.userID);
+    next();
 
     return user.userId;
   }

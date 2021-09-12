@@ -28,8 +28,8 @@ export class ValidateRegisterMiddleware implements NestMiddleware {
       await schema.validateAsync(req.body);
       next();
     } catch (e) {
-      // res.status(400).send({ message: 'registration error', error: e });
-      responseCode.res400(res, e, 'registration error');
+      res.status(400).send({ message: 'registration error', error: e });
+      // responseCode.res400(res, e, 'registration error');
     }
   }
 

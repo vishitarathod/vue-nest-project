@@ -13,19 +13,21 @@ import { Resource } from './models/resource.entity';
 import { Permission } from './models/permission.entity';
 import { AuthenticationService } from './services/helper/authentication.service';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategy/jwt.strategy';
 import { MailService } from './services/helper/mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { GenerateHashPasswordService } from './services/helper/generate-hash-password.service';
 import { join } from 'path';
-import { CommonService } from './services/helper/common.service';
-// import { RoleMiddleware } from './middleware/roleMiddleware';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Role, Post, Resource, Permission]),
-    JwtModule.register({}),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async () => ({}),
+    }),
     MailerModule.forRoot({
       transport: {
         service: 'gmail',
@@ -53,10 +55,9 @@ import { CommonService } from './services/helper/common.service';
     UserService,
     PostService,
     AuthenticationService,
-    JwtStrategy,
     MailService,
-    CommonService,
     GenerateHashPasswordService,
   ],
+  exports: [AuthenticationService],
 })
 export class MainModule {}
